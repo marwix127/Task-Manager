@@ -22,4 +22,9 @@ public class TaskController {
 	    public Task createTask(@RequestBody Task task) {
 	        return taskService.saveTask(task);
 	    }
+	    
+	    @PutMapping("/{id}")
+	    public Task updateTask(@PathVariable Long id, @RequestBody Task task) {
+	        return taskService.updateTask(id, task);
+	    }
 }
