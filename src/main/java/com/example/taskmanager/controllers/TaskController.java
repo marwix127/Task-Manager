@@ -3,6 +3,11 @@ package com.example.taskmanager.controllers;
 import com.example.taskmanager.models.Task;
 import com.example.taskmanager.services.TaskService;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -11,20 +16,20 @@ import java.util.List;
 @RequestMapping("/api/tasks")
 @RequiredArgsConstructor
 public class TaskController {
-	 private final TaskService taskService;
+    private final TaskService taskService;
 
-	    @GetMapping
-	    public List<Task> getAllTasks() {
-	        return taskService.getAllTasks();
-	    }
+    @GetMapping
+    public ResponseEntity<List<Task>> getTasks(@AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.ok(taskService.getTasksByUser(userDetails.getUsername()));
+    }
 
-	    @PostMapping
-	    public Task createTask(@RequestBody Task task) {
-	        return taskService.saveTask(task);
-	    }
-	    
-	    @PutMapping("/{id}")
-	    public Task updateTask(@PathVariable Long id, @RequestBody Task task) {
-	        return taskService.updateTask(id, task);
-	    }
+    @PostMapping
+    public ResponseEntity<Task> createTask(@RequestBody Task task, @AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(taskService.saveTask(task, userDetails.getUsername()));
+    }
+
+    @PutMapping("/{taskId}")
+    public ResponseEntity<Task> updateTask(@PathVariable Long taskId, @RequestBody Task task, @AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.ok(taskService.updateTask(taskId, task, userDetails.getUsername()));
+    }
 }
